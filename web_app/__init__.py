@@ -1,6 +1,5 @@
 import os
 import redis
-from rq import Queue
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -15,7 +14,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
 
-# 🔹 IMPORTANT: enable type comparison for migrations
+# Enable column type comparison in migrations
 migrate = Migrate(compare_type=True)
 
 csrf = CSRFProtect()
@@ -25,14 +24,23 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # 🔹 FIX Render PostgreSQL URL
+    # --------------------------------------------------
+    # DATABASE (Render Postgres fix)
+    # --------------------------------------------------
     database_url = os.environ.get("DATABASE_URL")
-    if database_url and database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    if database_url:
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace(
+                "postgres://", "postgresql://", 1
+            )
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
-    # Proxy fix for Render / Spaces
-    if os.environ.get('RENDER') or os.environ.get('SPACE_ID'):
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    # --------------------------------------------------
+    # Proxy fix (Render / HF Spaces)
+    # --------------------------------------------------
+    if os.environ.get("RENDER") or os.environ.get("SPACE_ID"):
         app.wsgi_app = ProxyFix(
             app.wsgi_app,
             x_for=1,
@@ -41,10 +49,35 @@ def create_app(config_class=Config):
             x_prefix=1
         )
 
-    # CSRF
+    # --------------------------------------------------
+    # Extensions
+    # --------------------------------------------------
     csrf.init_app(app)
+    db.init_app(app)
+    login_manager.init_app(app)
 
+    # --------------------------------------------------
+    # Import models BEFORE migrate
+    # --------------------------------------------------
+    from web_app import models  # noqa: F401
+
+    migrate.init_app(app, db)
+
+    # --------------------------------------------------
+    # AUTO DB MIGRATION (Render-safe)
+    # --------------------------------------------------
+    with app.app_context():
+        try:
+            from flask_migrate import upgrade
+            upgrade()
+            app.logger.info("Database migration applied successfully.")
+        except Exception as e:
+            # Safe fallback (first deploy / already up-to-date)
+            app.logger.warning(f"Migration skipped: {e}")
+
+    # --------------------------------------------------
     # CORS (API only)
+    # --------------------------------------------------
     CORS(
         app,
         resources={r"/api/*": {"origins": "*"}},
@@ -54,24 +87,21 @@ def create_app(config_class=Config):
         max_age=3600
     )
 
+    # --------------------------------------------------
     # DEV MODE
-    app.config['DEV_MODE'] = os.environ.get(
-        'DEV_MODE', 'False').lower() == 'true'
-    if app.config['DEV_MODE']:
-        print("\033[93m⚠️  Running in DEV_MODE - API calls will be stubbed!\033[0m")
+    # --------------------------------------------------
+    app.config["DEV_MODE"] = os.environ.get(
+        "DEV_MODE", "False"
+    ).lower() == "true"
 
-    # 🔹 Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
+    if app.config["DEV_MODE"]:
+        print("\033[93m⚠️ Running in DEV_MODE\033[0m")
 
-    # 🔹 IMPORTANT: models must be imported BEFORE migrate.init_app
-    from web_app import models  # noqa: F401
-
-    migrate.init_app(app, db)
-
+    # --------------------------------------------------
     # Redis (RQ)
+    # --------------------------------------------------
     try:
-        redis_url = os.environ.get('REDIS_URL')
+        redis_url = os.environ.get("REDIS_URL")
         if not redis_url:
             raise ValueError("REDIS_URL not set")
         app.redis = redis.from_url(redis_url, ssl_cert_reqs=None)
@@ -80,12 +110,14 @@ def create_app(config_class=Config):
         app.logger.error(f"Redis init failed: {e}")
         app.redis = None
 
+    # --------------------------------------------------
     # Blueprints
+    # --------------------------------------------------
     from web_app.main_routes import bp as main_bp
     app.register_blueprint(main_bp)
 
     from web_app.auth_routes import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_bp, url_prefix="/auth")
 
     from web_app.api_endpoints import api_bp
     app.register_blueprint(api_bp)
