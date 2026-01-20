@@ -1,0 +1,178 @@
+{
+  "id": "05e5c2fd-9410-415f-b944-082d364cfd68",
+  "title": "Beginner's Guide to Web Security",
+  "description": "A structured learning path for absolute beginners to understand web security fundamentals, threats, and best practices through visual and interactive content.",
+  "topic": "Web Security",
+  "expertise_level": "beginner",
+  "learning_style": "visual",
+  "time_commitment": "minimal",
+  "duration_weeks": 4,
+  "goals": [
+    "Master Web Security",
+    "Build practical skills in Web Security"
+  ],
+  "milestones": [
+    {
+      "title": "Web Security Fundamentals",
+      "description": "Learn the basics of web security, common threats, and security principles through visual diagrams and interactive content.",
+      "estimated_hours": 8,
+      "resources": [
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        },
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        }
+      ],
+      "skills_gained": [
+        "Understanding of web security basics",
+        "Common web threats",
+        "Security principles"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Common Web Vulnerabilities",
+      "description": "Explore common web vulnerabilities like SQL injection, XSS, and CSRF through visual demonstrations and case studies.",
+      "estimated_hours": 6,
+      "resources": [
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        },
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        }
+      ],
+      "skills_gained": [
+        "SQL Injection",
+        "Cross-Site Scripting (XSS)",
+        "Cross-Site Request Forgery (CSRF)"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Security Best Practices",
+      "description": "Learn and apply security best practices for developers and users through visual tutorials and hands-on exercises.",
+      "estimated_hours": 6,
+      "resources": [
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        },
+        {
+          "type": "article",
+          "url": "https://example.com/placeholder-resource",
+          "description": "Add your OpenAI API key to see real learning resources."
+        }
+      ],
+      "skills_gained": [
+        "Secure coding practices",
+        "User security awareness",
+        "Basic security tools"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    }
+  ],
+  "schedule": {
+    "total_hours": 8,
+    "hours_per_week": 2,
+    "start_date": "2026-01-10",
+    "end_date": "2026-02-07",
+    "topics": {
+      "Web Security Fundamentals": {
+        "hours": 3,
+        "start_date": "2026-01-10",
+        "end_date": "2026-01-20",
+        "percentage": 37.5
+      },
+      "Common Web Vulnerabilities": {
+        "hours": 2,
+        "start_date": "2026-01-20",
+        "end_date": "2026-01-27",
+        "percentage": 25.0
+      },
+      "Security Best Practices": {
+        "hours": 2,
+        "start_date": "2026-01-27",
+        "end_date": "2026-02-03",
+        "percentage": 25.0
+      }
+    }
+  },
+  "prerequisites": [
+    "Basic computer skills",
+    "Understanding of how the internet works"
+  ],
+  "total_hours": 20,
+  "created_at": "2026-01-10T11:49:16.614157",
+  "job_market_data": {
+    "open_positions": "25,000+",
+    "trending_employers": [
+      "Google",
+      "Meta",
+      "Amazon",
+      "Microsoft",
+      "Cloudflare",
+      "Auth0"
+    ],
+    "average_salary": "$110,000 - $150,000",
+    "related_roles": [],
+    "demand_score": 0,
+    "region": "North America",
+    "error": null
+  }
+}

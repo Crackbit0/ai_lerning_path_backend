@@ -1,0 +1,205 @@
+{
+  "id": "99fe81f7-c7ba-4738-8819-fb0eeed67ec5",
+  "title": "Python Programming for Visual Learners",
+  "description": "A beginner-friendly learning path designed for visual learners to master Python programming fundamentals through diagrams, visual aids, and spatial understanding. This path focuses on building practical skills with minimal weekly time commitment.",
+  "topic": "Python",
+  "expertise_level": "beginner",
+  "learning_style": "visual",
+  "time_commitment": "minimal",
+  "duration_weeks": 4,
+  "goals": [
+    "Master python",
+    "Build practical skills in python"
+  ],
+  "milestones": [
+    {
+      "title": "Python Fundamentals & Visual Syntax",
+      "description": "Learn Python syntax, variables, data types, and basic operations using visual diagrams and flowcharts to understand program flow",
+      "estimated_hours": 4,
+      "resources": [
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=PNSIWjWAA7o",
+          "description": "All Python Syntax in 25 Minutes \u2013 Tutorial by freeCodeCamp.org (Beau Carnes)"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=H2EJuAcrZYU",
+          "description": "Python Full Course for Beginners | Complete All-in-One Tutorial by Dave Gray"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=fLAfa-BQtOQ",
+          "description": "Python Basics for Beginners | Python tutorial by Dave Gray"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+          "description": "Python Full Course for Beginners by Bro Code"
+        }
+      ],
+      "skills_gained": [
+        "Python syntax",
+        "Variables and data types",
+        "Basic operators",
+        "Program flow understanding"
+      ],
+      "job_market_data": {
+        "open_positions": "10,000+",
+        "trending_employers": [
+          "Tech Companies",
+          "Startups",
+          "Enterprises"
+        ],
+        "average_salary": "$80,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Control Flow & Logic Visualization",
+      "description": "Master if statements, loops, and logical operations through flowcharts and visual programming concepts",
+      "estimated_hours": 4,
+      "resources": [
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=9XbeXpKMR_E",
+          "description": "Python Control Flow: Visually Explained by freeCodeCamp"
+        },
+        {
+          "type": "article",
+          "url": "https://www.freecodecamp.org/news/control-flow-in-programming-b9fb4f4539c/",
+          "description": "How Python makes decisions: an introduction to Control Flow in programming by freeCodeCamp"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=8124kv-632k",
+          "description": "Python Tutorial for Beginners by freeCodeCamp"
+        },
+        {
+          "type": "article",
+          "url": "https://www.freecodecamp.org/news/the-python-guide-for-beginners/",
+          "description": "The Ultimate Python Beginner's Handbook by freeCodeCamp"
+        }
+      ],
+      "skills_gained": [
+        "Conditional statements",
+        "For and while loops",
+        "Logical operators",
+        "Algorithm thinking"
+      ],
+      "job_market_data": {
+        "open_positions": "10,000+",
+        "trending_employers": [
+          "Tech Companies",
+          "Startups",
+          "Enterprises"
+        ],
+        "average_salary": "$80,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Functions & Practical Applications",
+      "description": "Learn to create reusable functions and build simple practical projects with visual debugging tools",
+      "estimated_hours": 4,
+      "resources": [
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=ePiWPSqZ9dI",
+          "description": "Build Your Own Functions | Legacy Python for Everybody 10 by freeCodeCamp.org"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=7iwQ0JKK6iw",
+          "description": "Python Functions | Legacy Python for Everybody 9 by freeCodeCamp.org"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=rfscVS0vtbw",
+          "description": "Learn Python - Full Course for Beginners [Tutorial] (includes Functions section) by freeCodeCamp.org"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=jqob1S3iKMc",
+          "description": "Scientific Computing with Python | freeCodeCamp Cert (Steps 1-10, covers functions) by freeCodeCamp.org"
+        },
+        {
+          "type": "article",
+          "url": "https://www.freecodecamp.org/news/learn-python-free-python-courses-for-beginners/",
+          "description": "Learn Python \u2013 Free Python Courses for Beginners (covers functions) by freeCodeCamp"
+        }
+      ],
+      "skills_gained": [
+        "Function creation",
+        "Code reusability",
+        "Debugging skills",
+        "Simple project building"
+      ],
+      "job_market_data": {
+        "open_positions": "10,000+",
+        "trending_employers": [
+          "Tech Companies",
+          "Startups",
+          "Enterprises"
+        ],
+        "average_salary": "$80,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    }
+  ],
+  "schedule": {
+    "total_hours": 8,
+    "hours_per_week": 2,
+    "start_date": "2026-01-15",
+    "end_date": "2026-02-12",
+    "topics": {
+      "Python Fundamentals & Visual Syntax": {
+        "hours": 3,
+        "start_date": "2026-01-15",
+        "end_date": "2026-01-26",
+        "percentage": 37.5
+      },
+      "Control Flow & Logic Visualization": {
+        "hours": 3,
+        "start_date": "2026-01-26",
+        "end_date": "2026-02-05",
+        "percentage": 37.5
+      },
+      "Functions & Practical Applications": {
+        "hours": 3,
+        "start_date": "2026-02-05",
+        "end_date": "2026-02-16",
+        "percentage": 37.5
+      }
+    }
+  },
+  "prerequisites": [
+    "Basic computer literacy",
+    "Ability to install software",
+    "No prior programming experience needed"
+  ],
+  "total_hours": 12,
+  "created_at": "2024-01-01",
+  "job_market_data": {
+    "open_positions": "10,000+",
+    "trending_employers": [
+      "Tech Companies",
+      "Startups",
+      "Enterprises"
+    ],
+    "average_salary": "$80,000 - $150,000",
+    "related_roles": [],
+    "demand_score": 0,
+    "region": "North America",
+    "error": null
+  }
+}

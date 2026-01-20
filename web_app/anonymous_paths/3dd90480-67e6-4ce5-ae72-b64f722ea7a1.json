@@ -1,0 +1,188 @@
+{
+  "id": "3dd90480-67e6-4ce5-ae72-b64f722ea7a1",
+  "title": "Beginner's Guide to Web Security",
+  "description": "A structured learning path for absolute beginners to understand web security fundamentals, threats, and best practices through visual and interactive content.",
+  "topic": "Web Security",
+  "expertise_level": "beginner",
+  "learning_style": "visual",
+  "time_commitment": "minimal",
+  "duration_weeks": 4,
+  "goals": [
+    "Master Web Security",
+    "Build practical skills in Web Security"
+  ],
+  "milestones": [
+    {
+      "title": "Web Security Fundamentals",
+      "description": "Learn the basics of web security, common threats, and security principles through visual diagrams and interactive content.",
+      "estimated_hours": 8,
+      "resources": [
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=F5KJVuii0Yw",
+          "description": "Web App Vulnerabilities - DevSecOps Course for Beginners (web security course) by freeCodeCamp.org"
+        },
+        {
+          "type": "article",
+          "url": "https://owasp.org/www-project-top-ten/",
+          "description": "OWASP Top Ten Web Application Security Risks \u2013 Core Web Security Fundamentals by OWASP"
+        },
+        {
+          "type": "article",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Website_security",
+          "description": "Website security \u2013 MDN Web Docs (server-side web security fundamentals)"
+        }
+      ],
+      "skills_gained": [
+        "Understanding of web security basics",
+        "Common web threats",
+        "Security principles"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Common Web Vulnerabilities",
+      "description": "Explore common web vulnerabilities like SQL injection, XSS, and CSRF through visual demonstrations and case studies.",
+      "estimated_hours": 6,
+      "resources": [
+        {
+          "type": "article",
+          "url": "https://web.dev/secure/",
+          "description": "Secure your site \u2013 Guides on common web security vulnerabilities and how to defend against them \u2013 web.dev/security"
+        },
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=p34y1wm4Ul0",
+          "description": "Web Security Tutorial for Beginners | CyberSecurity \u2013 Comprehensive overview of the most common web attacks and countermeasures (full course-style video)"
+        },
+        {
+          "type": "article",
+          "url": "https://portswigger.net/web-security/vulnerabilities",
+          "description": "PortSwigger Web Security Academy \u2013 Vulnerabilities: Free, comprehensive documentation and labs on common web vulnerabilities (XSS, SQLi, CSRF, etc.)"
+        }
+      ],
+      "skills_gained": [
+        "SQL Injection",
+        "Cross-Site Scripting (XSS)",
+        "Cross-Site Request Forgery (CSRF)"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    },
+    {
+      "title": "Security Best Practices",
+      "description": "Learn and apply security best practices for developers and users through visual tutorials and hands-on exercises.",
+      "estimated_hours": 6,
+      "resources": [
+        {
+          "type": "video",
+          "url": "https://www.youtube.com/watch?v=F5KJVuii0Yw",
+          "description": "Web App Vulnerabilities - DevSecOps Course for Beginners (web security best practices focus) by freeCodeCamp.org"
+        },
+        {
+          "type": "article",
+          "url": "https://web.dev/security/",
+          "description": "Web security best practices for developers \u2013 Secure your web application (web.dev/security)"
+        }
+      ],
+      "skills_gained": [
+        "Secure coding practices",
+        "User security awareness",
+        "Basic security tools"
+      ],
+      "job_market_data": {
+        "open_positions": "25,000+",
+        "trending_employers": [
+          "Google",
+          "Meta",
+          "Amazon",
+          "Microsoft",
+          "Cloudflare",
+          "Auth0"
+        ],
+        "average_salary": "$110,000 - $150,000",
+        "related_roles": [],
+        "demand_score": 0,
+        "region": "North America",
+        "error": null
+      }
+    }
+  ],
+  "schedule": {
+    "total_hours": 8,
+    "hours_per_week": 2,
+    "start_date": "2026-01-10",
+    "end_date": "2026-02-07",
+    "topics": {
+      "Web Security Fundamentals": {
+        "hours": 3,
+        "start_date": "2026-01-10",
+        "end_date": "2026-01-21",
+        "percentage": 37.5
+      },
+      "Common Web Vulnerabilities": {
+        "hours": 2,
+        "start_date": "2026-01-21",
+        "end_date": "2026-01-28",
+        "percentage": 25.0
+      },
+      "Security Best Practices": {
+        "hours": 2,
+        "start_date": "2026-01-28",
+        "end_date": "2026-02-04",
+        "percentage": 25.0
+      }
+    }
+  },
+  "prerequisites": [
+    "Basic computer skills",
+    "Understanding of how the internet works"
+  ],
+  "total_hours": 20,
+  "created_at": "2026-01-10T12:04:05.309448",
+  "job_market_data": {
+    "open_positions": "25,000+",
+    "trending_employers": [
+      "Google",
+      "Meta",
+      "Amazon",
+      "Microsoft",
+      "Cloudflare",
+      "Auth0"
+    ],
+    "average_salary": "$110,000 - $150,000",
+    "related_roles": [],
+    "demand_score": 0,
+    "region": "North America",
+    "error": null
+  }
+}
