@@ -94,7 +94,7 @@ def index():
     # If user is authenticated, show dashboard instead
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    
+
     # Get all categories and organize skills by category
     categories = get_all_categories()
     skills_by_category = {}
@@ -111,6 +111,32 @@ def index():
         categories=categories,
         skills_by_category=skills_by_category,
         all_skills=all_skills
+    )
+
+
+@bp.route('/new-path')
+def new_path():
+    """
+    Dedicated route to show the learning path creation form.
+    Works for both authenticated and unauthenticated users.
+    """
+    # Get all categories and organize skills by category
+    categories = get_all_categories()
+    skills_by_category = {}
+    for category in categories:
+        skills_by_category[category] = get_skills_by_category(category)
+
+    # Get all skills for the popular topics section
+    all_skills = list(SKILLS_DATABASE.keys())
+
+    return render_template(
+        'index.html',
+        expertise_levels=EXPERTISE_LEVELS,
+        time_commitments=TIME_COMMITMENTS,
+        categories=categories,
+        skills_by_category=skills_by_category,
+        all_skills=all_skills,
+        scroll_to_form=True  # Flag to auto-scroll to the form
     )
 
 

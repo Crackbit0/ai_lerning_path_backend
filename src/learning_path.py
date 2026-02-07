@@ -39,7 +39,8 @@ from src.ml.resource_search import search_resources
 class ResourceItem(BaseModel):
     """A single learning resource."""
 
-    type: str = Field(description="Type of the resource (e.g., article, video, book)")
+    type: str = Field(
+        description="Type of the resource (e.g., article, video, book)")
     url: str = Field(description="URL of the resource")
     description: str = Field(description="Brief description of the resource")
 
@@ -77,11 +78,13 @@ class Milestone(BaseModel):
     """A milestone in a learning path."""
 
     title: str = Field(description="Short title for the milestone")
-    description: str = Field(description="Detailed description of what will be learned")
+    description: str = Field(
+        description="Detailed description of what will be learned")
     estimated_hours: int = Field(
         description="Estimated hours to complete this milestone"
     )
-    resources: List[ResourceItem] = Field(description="Recommended learning resources")
+    resources: List[ResourceItem] = Field(
+        description="Recommended learning resources")
     skills_gained: List[str] = Field(
         description="Skills gained after completing this milestone"
     )
@@ -109,7 +112,8 @@ class LearningPath(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str = Field(description="Title of the learning path")
-    description: str = Field(description="Detailed description of the learning path")
+    description: str = Field(
+        description="Detailed description of the learning path")
     topic: str = Field(description="Main topic of study")
     expertise_level: str = Field(description="Starting expertise level")
     learning_style: str = Field(description="Preferred learning style")
@@ -118,13 +122,15 @@ class LearningPath(BaseModel):
         description="Total duration in weeks", default=0
     )
     goals: List[str] = Field(description="Learning goals and objectives")
-    milestones: List["Milestone"] = Field(description="Weekly or modular breakdown")
+    milestones: List["Milestone"] = Field(
+        description="Weekly or modular breakdown")
     schedule: Optional[Dict[str, Any]] = Field(
         default=None, description="The calculated study schedule"
     )
     prerequisites: List[str] = Field(description="Prerequisites for this path")
     total_hours: int = Field(description="Total estimated hours")
-    created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
+    created_at: str = Field(
+        default_factory=lambda: datetime.datetime.now().isoformat())
     job_market_data: JobMarketData = Field(
         description="Aggregated job market data for the main topic",
         default_factory=JobMarketData,
@@ -185,16 +191,19 @@ class LearningPathGenerator:
         try:
             # Get skill info from database (includes salary and market info)
             skill_info = get_skill_info(skill_or_role, expertise_level)
-            
+
             # Extract market info
             market_info = skill_info.get("market_info", {})
-            
+
             # Create JobMarketData object
             return JobMarketData(
                 open_positions=market_info.get("open_positions", "10,000+"),
-                average_salary=skill_info.get("salary_range", "$80,000 - $150,000"),
-                trending_employers=market_info.get("top_employers", ["Tech Companies"]),
-                related_roles=market_info.get("related_roles", ["Software Engineer"]),
+                average_salary=skill_info.get(
+                    "salary_range", "$80,000 - $150,000"),
+                trending_employers=market_info.get(
+                    "top_employers", ["Tech Companies"]),
+                related_roles=market_info.get(
+                    "related_roles", ["Software Engineer"]),
                 region=region or DEFAULT_REGION
             )
         except Exception as e:
@@ -202,7 +211,8 @@ class LearningPathGenerator:
             return JobMarketData(
                 open_positions="10,000+",
                 average_salary="$80,000 - $150,000",
-                trending_employers=["Tech Companies", "Startups", "Enterprises"],
+                trending_employers=["Tech Companies",
+                                    "Startups", "Enterprises"],
                 related_roles=["Software Engineer", "Developer"],
                 region=region or DEFAULT_REGION,
                 error=str(e)
@@ -237,7 +247,8 @@ class LearningPathGenerator:
         if ai_provider or ai_model:
             try:
                 override_provider = ai_provider or self.model_orchestrator.provider
-                orchestrator_to_use = ModelOrchestrator(provider=override_provider)
+                orchestrator_to_use = ModelOrchestrator(
+                    provider=override_provider)
                 orchestrator_to_use.init_language_model(model_name=ai_model)
             except Exception as init_error:
                 print(
@@ -263,13 +274,15 @@ class LearningPathGenerator:
             if "[" in response_str and "]" in response_str:
                 try:
                     # Extract content between brackets and split by comma
-                    roles_str = response_str[response_str.find('[')+1:response_str.rfind(']')]
+                    roles_str = response_str[response_str.find(
+                        '[')+1:response_str.rfind(']')]
                     return [role.strip().strip('"\'') for role in roles_str.split(',')]
                 except Exception:
                     return ["Could not parse roles"]
             return ["Could not determine roles"]
         except Exception as e:
-            print(f"An unexpected error occurred while fetching related roles: {e}")
+            print(
+                f"An unexpected error occurred while fetching related roles: {e}")
             return []
 
     def generate_path(
@@ -313,24 +326,28 @@ class LearningPathGenerator:
             "goals": goals_str,
             "additional_info": additional_info or ""
         }
-        cache_key_str = json.dumps(cache_key_data, sort_keys=True).encode('utf-8')
+        cache_key_str = json.dumps(
+            cache_key_data, sort_keys=True).encode('utf-8')
         cache_key = hashlib.sha256(cache_key_str).hexdigest()
 
         cached_path = self.document_store.get_cached_path(cache_key)
         if cached_path:
-            print(f"✅ Cache hit for learning path: {cache_key[:16]}... (topic: {topic})")
+            print(
+                f"✅ Cache hit for learning path: {cache_key[:16]}... (topic: {topic})")
             # Ensure the cached data is a valid LearningPath object
             try:
                 return LearningPath(**cached_path)
             except ValidationError as e:
-                print(f"⚠️ Cached path validation failed, regenerating... Error: {e}")
+                print(
+                    f"⚠️ Cached path validation failed, regenerating... Error: {e}")
         else:
-            print(f"❌ Cache miss for learning path: {cache_key[:16]}... (topic: {topic})")
+            print(
+                f"❌ Cache miss for learning path: {cache_key[:16]}... (topic: {topic})")
         # ---------------------------
 
         # Track generation time for observability
         generation_start_time = time.time()
-        
+
         # Log the generation attempt
         self.obs_manager.log_event("path_generation_started", {
             "topic": topic,
@@ -339,7 +356,7 @@ class LearningPathGenerator:
             "time_commitment": time_commitment,
             "user_id": user_id
         })
-        
+
         if goals is None:
             goals = [f"Master {topic}", f"Build practical skills in {topic}"]
 
@@ -368,13 +385,15 @@ class LearningPathGenerator:
             query=topic, filters={"expertise_level": expertise_level}, top_k=10
         )
 
-        hours_map = {"minimal": 2, "moderate": 5, "substantial": 8, "intensive": 15}
+        hours_map = {"minimal": 2, "moderate": 5,
+                     "substantial": 8, "intensive": 15}
         hours_per_week = hours_map.get(time_commitment, 5)
 
         # Use user-specified duration if provided, otherwise calculate
         if duration_weeks and duration_weeks > 0:
             adjusted_duration = duration_weeks
-            print(f"✅ Using user-specified duration: {adjusted_duration} weeks")
+            print(
+                f"✅ Using user-specified duration: {adjusted_duration} weeks")
         else:
             base_duration = 8
             intensity_factor = {
@@ -396,7 +415,7 @@ class LearningPathGenerator:
                 * complexity_factor.get(expertise_level, 1.0)
             )
             print(f"📊 Calculated duration: {adjusted_duration} weeks")
-        
+
         # Calculate appropriate number of milestones based on duration
         # Rule: 1 milestone per 1-3 weeks
         if adjusted_duration <= 4:
@@ -409,8 +428,9 @@ class LearningPathGenerator:
             target_milestones = 6  # Long paths: 6 milestones
         else:
             target_milestones = 7  # Very long paths: 7 milestones
-        
-        print(f"🎯 Target milestones for {adjusted_duration} weeks: {target_milestones}")
+
+        print(
+            f"🎯 Target milestones for {adjusted_duration} weeks: {target_milestones}")
 
         # Build semantic cache query signature (captures the high-level intent)
         semantic_signature = json.dumps(
@@ -437,7 +457,8 @@ class LearningPathGenerator:
                 parsed_successfully = True
                 print("✅ Semantic cache hit for learning path structure")
             except ValidationError as e:
-                print(f"⚠️ Semantic cache entry invalid, regenerating. Error: {e}")
+                print(
+                    f"⚠️ Semantic cache entry invalid, regenerating. Error: {e}")
                 cached_semantic_path = None
         else:
             print("❌ Semantic cache miss for learning path structure")
@@ -452,17 +473,17 @@ Expertise Level: {expertise_level} - {EXPERTISE_LEVELS[expertise_level]}
 Learning Style: {learning_style} - {LEARNING_STYLES[learning_style]}
 Time Commitment: {time_commitment} - {TIME_COMMITMENTS[time_commitment]}
 Duration: {adjusted_duration} weeks
-Target Milestones: {target_milestones} milestones
 Learning Goals: {', '.join(goals)}
 Additional Information: {additional_info or 'None provided'}
 
-IMPORTANT: 
+CRITICAL INSTRUCTIONS: 
 1. Return ONLY valid JSON matching this exact structure.
-2. Generate EXACTLY {target_milestones} milestones (no more, no less).
-3. Set duration_weeks to EXACTLY {adjusted_duration}.
-4. Distribute the milestones evenly across the {adjusted_duration} weeks.
+2. Generate EXACTLY {adjusted_duration} milestones - ONE MILESTONE PER WEEK.
+3. Each milestone title MUST start with "Week X:" (e.g., "Week 1: Introduction to Python").
+4. Set duration_weeks to EXACTLY {adjusted_duration}.
+5. Each milestone represents ONE week of learning content.
 
-=== EXAMPLE 1: Python Programming (Beginner) ===
+=== EXAMPLE 1: Python Programming (Beginner, 4 weeks) ===
 {{
   "title": "Complete Python Programming Journey",
   "description": "A comprehensive learning path designed for absolute beginners to master Python programming through hands-on projects and real-world applications.",
@@ -470,11 +491,11 @@ IMPORTANT:
   "expertise_level": "beginner",
   "learning_style": "visual",
   "time_commitment": "moderate",
-  "duration_weeks": 8,
+  "duration_weeks": 4,
   "goals": ["Master Python basics", "Build real projects", "Prepare for data science"],
   "milestones": [
     {{
-      "title": "Python Fundamentals",
+      "title": "Week 1: Python Fundamentals",
       "description": "Learn Python syntax, variables, data types, and basic operations",
       "estimated_hours": 10,
       "resources": [
@@ -484,7 +505,7 @@ IMPORTANT:
       "skills_gained": ["Python syntax", "Data types", "Variables", "Basic operators"]
     }},
     {{
-      "title": "Control Flow and Functions",
+      "title": "Week 2: Control Flow and Functions",
       "description": "Master if statements, loops, and creating reusable functions",
       "estimated_hours": 12,
       "resources": [
@@ -492,13 +513,33 @@ IMPORTANT:
         {{"type": "video", "url": "https://example.com/functions", "description": "Functions Deep Dive"}}
       ],
       "skills_gained": ["Conditional logic", "Loops", "Function creation", "Code organization"]
+    }},
+    {{
+      "title": "Week 3: Data Structures",
+      "description": "Learn lists, dictionaries, sets, and tuples for efficient data handling",
+      "estimated_hours": 10,
+      "resources": [
+        {{"type": "video", "url": "https://example.com/data-structures", "description": "Python Data Structures"}},
+        {{"type": "interactive", "url": "https://example.com/ds-exercises", "description": "Data Structure Exercises"}}
+      ],
+      "skills_gained": ["Lists", "Dictionaries", "Sets", "Tuples"]
+    }},
+    {{
+      "title": "Week 4: Final Project",
+      "description": "Build a complete Python application applying all learned concepts",
+      "estimated_hours": 8,
+      "resources": [
+        {{"type": "project", "url": "https://example.com/python-project", "description": "Guided Python Project"}},
+        {{"type": "article", "url": "https://example.com/best-practices", "description": "Python Best Practices"}}
+      ],
+      "skills_gained": ["Project planning", "Code organization", "Problem solving", "Debugging"]
     }}
   ],
   "prerequisites": ["Basic computer skills", "Text editor familiarity"],
   "total_hours": 40
 }}
 
-=== EXAMPLE 2: Machine Learning (Intermediate) ===
+=== EXAMPLE 2: Machine Learning (Intermediate, 3 weeks) ===
 {{
   "title": "Practical Machine Learning Mastery",
   "description": "An intermediate-level path to master machine learning algorithms, model training, and deployment for real-world applications.",
@@ -506,11 +547,11 @@ IMPORTANT:
   "expertise_level": "intermediate",
   "learning_style": "hands-on",
   "time_commitment": "substantial",
-  "duration_weeks": 12,
+  "duration_weeks": 3,
   "goals": ["Build ML models", "Deploy to production", "Understand ML theory"],
   "milestones": [
     {{
-      "title": "Supervised Learning Fundamentals",
+      "title": "Week 1: Supervised Learning Fundamentals",
       "description": "Master regression and classification algorithms with practical implementations",
       "estimated_hours": 15,
       "resources": [
@@ -518,6 +559,26 @@ IMPORTANT:
         {{"type": "project", "url": "https://example.com/ml-projects", "description": "Hands-on ML Projects"}}
       ],
       "skills_gained": ["Linear regression", "Logistic regression", "Decision trees", "Model evaluation"]
+    }},
+    {{
+      "title": "Week 2: Unsupervised Learning",
+      "description": "Learn clustering, dimensionality reduction, and pattern recognition",
+      "estimated_hours": 15,
+      "resources": [
+        {{"type": "course", "url": "https://example.com/unsupervised", "description": "Unsupervised Learning Course"}},
+        {{"type": "project", "url": "https://example.com/clustering", "description": "Clustering Project"}}
+      ],
+      "skills_gained": ["K-means clustering", "PCA", "Pattern recognition", "Data preprocessing"]
+    }},
+    {{
+      "title": "Week 3: Model Deployment",
+      "description": "Deploy your trained models to production environments",
+      "estimated_hours": 15,
+      "resources": [
+        {{"type": "course", "url": "https://example.com/ml-deployment", "description": "ML Deployment Guide"}},
+        {{"type": "project", "url": "https://example.com/deploy-project", "description": "Deploy ML Model Project"}}
+      ],
+      "skills_gained": ["Model serialization", "API creation", "Docker basics", "Cloud deployment"]
     }}
   ],
   "prerequisites": ["Python programming", "Basic statistics", "Linear algebra basics"],
@@ -530,15 +591,17 @@ Topic: {topic}
 Expertise Level: {expertise_level}
 Learning Style: {learning_style}
 Time Commitment: {time_commitment}
+Duration: {adjusted_duration} weeks
 Goals: {', '.join(goals)}
 
-Requirements:
-1. Include 3-7 milestones that represent major learning stages
-2. Each milestone should have 2-4 resources tailored to the {learning_style} learning style
-3. Estimate realistic hours for each milestone
-4. List specific skills gained at each milestone
-5. Include relevant prerequisites
-6. Calculate total_hours as sum of all milestone hours
+CRITICAL Requirements:
+1. Generate EXACTLY {adjusted_duration} milestones - ONE for EACH WEEK
+2. Each milestone title MUST start with "Week X:" format (e.g., "Week 1: Introduction", "Week 2: Fundamentals")
+3. Each milestone should have 2-4 resources tailored to the {learning_style} learning style
+4. Estimate realistic hours for each milestone based on the {time_commitment} commitment
+5. List specific skills gained at each milestone
+6. Include relevant prerequisites
+7. Calculate total_hours as sum of all milestone hours
 
 Return ONLY the JSON object, no markdown formatting or explanation.
 """
@@ -559,7 +622,8 @@ Return ONLY the JSON object, no markdown formatting or explanation.
         if not parsed_successfully:
             for attempt in range(3):
                 if attempt > 0:
-                    print(f"Retrying learning path generation (attempt {attempt+1}) due to previous validation failure…")
+                    print(
+                        f"Retrying learning path generation (attempt {attempt+1}) due to previous validation failure…")
                 response = orchestrator_to_use.generate_structured_response(
                     prompt=prompt_with_context,
                     output_schema=self.output_parser.get_format_instructions(),
@@ -572,10 +636,12 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                     learning_path = self.output_parser.parse(response)
                     parsed_successfully = True
                     # Store the successful structure for future semantic cache hits
-                    self.semantic_cache.set(semantic_signature, learning_path.dict())
+                    self.semantic_cache.set(
+                        semantic_signature, learning_path.dict())
                     break
                 except ValidationError as ve:
-                    print("Validation failed when parsing AI response as LearningPath:", ve)
+                    print(
+                        "Validation failed when parsing AI response as LearningPath:", ve)
                     print("Offending response:\n", response)
                     last_error = ve
                     # Slightly tweak the prompt for the next attempt
@@ -590,12 +656,14 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                     break  # Unexpected errors – don't retry further
 
         if not parsed_successfully:
-            raise RuntimeError("LearningPath generation failed after 3 attempts") from last_error
+            raise RuntimeError(
+                "LearningPath generation failed after 3 attempts") from last_error
 
         # Fetch job market data ONCE for the main topic (not per milestone)
         # This significantly speeds up generation time
         print(f"📊 Fetching job market data for main topic: {topic}")
-        aggregated_job_market = self.fetch_job_market_data(topic, expertise_level=expertise_level)
+        aggregated_job_market = self.fetch_job_market_data(
+            topic, expertise_level=expertise_level)
         learning_path.job_market_data = aggregated_job_market
 
         # Fetch related roles once for the main topic
@@ -621,18 +689,20 @@ Return ONLY the JSON object, no markdown formatting or explanation.
             milestone.job_market_data = aggregated_job_market
 
         # Fetch resources for milestones IN PARALLEL (much faster!)
-        print(f"🔍 Fetching resources for {len(learning_path.milestones)} milestones in parallel...")
-        
+        print(
+            f"🔍 Fetching resources for {len(learning_path.milestones)} milestones in parallel...")
+
         def fetch_milestone_resources(milestone_data):
             """Helper function to fetch resources for a single milestone"""
             milestone, index = milestone_data
             try:
-                print(f"  [{index}/{len(learning_path.milestones)}] Fetching resources for: {milestone.title}")
-                
+                print(
+                    f"  [{index}/{len(learning_path.milestones)}] Fetching resources for: {milestone.title}")
+
                 # Get trusted sources from the skills database
                 skill_info = get_skill_info(topic, expertise_level)
                 trusted_sources = skill_info.get("resources", {})
-                
+
                 # Prepare the trusted sources dict for Perplexity
                 perplexity_sources = None
                 if trusted_sources:
@@ -642,24 +712,28 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                     }
                     print(f"  📚 Using curated sources:")
                     if perplexity_sources.get('youtube'):
-                        print(f"     YouTube: {', '.join(perplexity_sources['youtube'][:3])}{'...' if len(perplexity_sources['youtube']) > 3 else ''}")
+                        print(
+                            f"     YouTube: {', '.join(perplexity_sources['youtube'][:3])}{'...' if len(perplexity_sources['youtube']) > 3 else ''}")
                     if perplexity_sources.get('websites'):
-                        print(f"     Websites: {', '.join(perplexity_sources['websites'][:3])}{'...' if len(perplexity_sources['websites']) > 3 else ''}")
+                        print(
+                            f"     Websites: {', '.join(perplexity_sources['websites'][:3])}{'...' if len(perplexity_sources['websites']) > 3 else ''}")
                 else:
-                    print(f"  ⚠️  No curated sources found for '{topic}' - using general search")
-                
+                    print(
+                        f"  ⚠️  No curated sources found for '{topic}' - using general search")
+
                 # Use Perplexity to search within trusted sources
                 contextualized_query = f"{topic}: {milestone.title}"
                 print(f"  🔍 Searching with Perplexity...")
-                
+
                 perplexity_results = search_resources(
-                    contextualized_query, 
+                    contextualized_query,
                     k=5,  # Get more resources for better variety
                     trusted_sources=perplexity_sources
                 )
-                
+
                 if perplexity_results and len(perplexity_results) > 0:
-                    print(f"  ✓ Found {len(perplexity_results)} specific resources from trusted sources")
+                    print(
+                        f"  ✓ Found {len(perplexity_results)} specific resources from trusted sources")
                     return milestone, [ResourceItem(**r) for r in perplexity_results]
                 else:
                     # Fallback to default resources if Perplexity fails
@@ -676,9 +750,10 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                             description=f"Coursera: {milestone.title}"
                         )
                     ]
-                    
+
             except Exception as _err:
-                print(f"  ⚠️  Resource search failed for {milestone.title}: {_err}")
+                print(
+                    f"  ⚠️  Resource search failed for {milestone.title}: {_err}")
                 # Return default resources
                 return milestone, [
                     ResourceItem(
@@ -692,23 +767,24 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                         description=f"Coursera: {milestone.title}"
                     )
                 ]
-        
+
         # Use ThreadPoolExecutor to fetch resources in parallel
         with ThreadPoolExecutor(max_workers=3) as executor:
             # Submit all tasks
-            milestone_data = [(m, i+1) for i, m in enumerate(learning_path.milestones)]
+            milestone_data = [(m, i+1)
+                              for i, m in enumerate(learning_path.milestones)]
             future_to_milestone = {
-                executor.submit(fetch_milestone_resources, data): data[0] 
+                executor.submit(fetch_milestone_resources, data): data[0]
                 for data in milestone_data
             }
-            
+
             # Collect results as they complete
             for future in as_completed(future_to_milestone):
                 milestone, resources = future.result()
                 milestone.resources = resources
-        
+
         print(f"✅ All resources fetched!")
-        
+
         # Validate all resources to ensure they're accessible
         print(f"🔍 Validating resource URLs...")
         all_resources_to_validate = []
@@ -719,12 +795,12 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                     'title': resource.description,
                     'type': resource.type
                 })
-        
+
         # Run validation asynchronously
         try:
             from src.utils.resource_validator import ResourceValidator
             validator = ResourceValidator(cache_ttl_hours=24, max_retries=2)
-            
+
             # Create event loop for async validation
             import asyncio
             try:
@@ -732,36 +808,40 @@ Return ONLY the JSON object, no markdown formatting or explanation.
             except RuntimeError:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-            
+
             validated_resources = loop.run_until_complete(
                 validator.validate_resources(all_resources_to_validate)
             )
-            
+
             # Update milestones with validation results and filter out invalid resources
             resource_index = 0
             for milestone in learning_path.milestones:
                 validated_milestone_resources = []
                 for resource in milestone.resources:
                     if resource_index < len(validated_resources):
-                        validation = validated_resources[resource_index].get('validation', {})
-                        
+                        validation = validated_resources[resource_index].get(
+                            'validation', {})
+
                         # Only keep resources with high confidence (valid or temporarily unavailable)
                         if validation.get('valid', False) or validation.get('confidence', 0) >= 0.5:
                             validated_milestone_resources.append(resource)
                             if not validation.get('valid'):
-                                print(f"  ⚠️  Keeping potentially valid resource: {resource.url[:50]}... (confidence: {validation.get('confidence')})")
+                                print(
+                                    f"  ⚠️  Keeping potentially valid resource: {resource.url[:50]}... (confidence: {validation.get('confidence')})")
                         else:
-                            print(f"  ❌ Filtered out invalid resource: {resource.url[:50]}... ({validation.get('error', 'unknown error')})")
-                        
+                            print(
+                                f"  ❌ Filtered out invalid resource: {resource.url[:50]}... ({validation.get('error', 'unknown error')})")
+
                         resource_index += 1
-                
+
                 # Update milestone with validated resources
                 milestone.resources = validated_milestone_resources
-            
+
             # Get validation stats
             stats = validator.get_validation_stats()
-            print(f"✅ Validation complete: {stats['valid_count']}/{stats['total_checked']} resources valid ({stats['success_rate']}%)")
-            
+            print(
+                f"✅ Validation complete: {stats['valid_count']}/{stats['total_checked']} resources valid ({stats['success_rate']}%)")
+
         except Exception as e:
             print(f"⚠️  Resource validation failed: {e}")
             print(f"   Continuing with unvalidated resources...")
@@ -772,14 +852,18 @@ Return ONLY the JSON object, no markdown formatting or explanation.
         for milestone in learning_path.milestones:
             try:
                 if not milestone.resources or len(milestone.resources) == 0:
-                    print(f"  ⚠️  No valid resources after validation for: {milestone.title}. Running general search fallback...")
+                    print(
+                        f"  ⚠️  No valid resources after validation for: {milestone.title}. Running general search fallback...")
                     contextualized_query = f"{topic}: {milestone.title}"
-                    general_results = search_resources(contextualized_query, k=5, trusted_sources=None)
+                    general_results = search_resources(
+                        contextualized_query, k=5, trusted_sources=None)
                     if general_results:
-                        milestone.resources = [ResourceItem(**r) for r in general_results[:3]]
-                
+                        milestone.resources = [ResourceItem(
+                            **r) for r in general_results[:3]]
+
                 if not milestone.resources or len(milestone.resources) == 0:
-                    print(f"  ⚠️  General search returned no results. Adding search links for: {milestone.title}")
+                    print(
+                        f"  ⚠️  General search returned no results. Adding search links for: {milestone.title}")
                     yt_q = milestone.title.replace(' ', '+')
                     g_q = milestone.title.replace(' ', '+')
                     milestone.resources = [
@@ -794,11 +878,12 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                             description=f"Google: {milestone.title}"
                         ),
                     ]
-                
+
                 if len(milestone.resources) < 2:
                     print(f"  ℹ️  Topping up resources for: {milestone.title}")
                     contextualized_query = f"{topic}: {milestone.title}"
-                    more_results = search_resources(contextualized_query, k=5, trusted_sources=None)
+                    more_results = search_resources(
+                        contextualized_query, k=5, trusted_sources=None)
                     if more_results:
                         for r in more_results:
                             if len(milestone.resources) >= 3:
@@ -808,7 +893,8 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                             except Exception:
                                 continue
             except Exception as _e:
-                print(f"  ⚠️  Post-validation fallback failed for {milestone.title}: {_e}")
+                print(
+                    f"  ⚠️  Post-validation fallback failed for {milestone.title}: {_e}")
 
         topic_weights = {
             milestone.title: milestone.estimated_hours
@@ -832,10 +918,10 @@ Return ONLY the JSON object, no markdown formatting or explanation.
             )
             learning_path.duration_weeks = adjusted_duration
             learning_path.id = str(uuid.uuid4())
-            
+
             # Mark as successful
             success = True
-            
+
             # Log success metrics
             generation_time_ms = (time.time() - generation_start_time) * 1000
             self.obs_manager.log_metric("path_generation_success", 1.0, {
@@ -845,7 +931,7 @@ Return ONLY the JSON object, no markdown formatting or explanation.
                 "milestone_count": len(learning_path.milestones),
                 "user_id": user_id
             })
-            
+
             self.obs_manager.log_event("path_generation_completed", {
                 "topic": topic,
                 "expertise_level": expertise_level,

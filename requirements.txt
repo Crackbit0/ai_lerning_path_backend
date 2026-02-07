@@ -17,6 +17,8 @@ Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 Flask-Migrate==4.0.7
+psycopg2-binary>=2.9.9  # PostgreSQL adapter for Neon/Supabase
+PyJWT>=2.8.0  # JWT token authentication for mobile apps
 
 # Document processing
 unstructured==0.10.30  # Using base package without all-docs to avoid complex deps

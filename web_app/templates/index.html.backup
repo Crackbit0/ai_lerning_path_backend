@@ -756,11 +756,6 @@
         <span class="mx-1 hidden sm:inline">&bull;</span>
         <span class="block sm:inline">This tool generates personalized AI learning paths based on your interests.</span>
         <span class="mx-1 hidden sm:inline">&bull;</span>
-        <span class="block sm:inline">
-            Built by <a href="https://github.com/arun3676" target="_blank" class="underline hover:text-magenta">Arun&nbsp;Kumar&nbsp;Chukkala</a>
-            &mdash;
-            <a href="https://www.linkedin.com/in/arun-kumar-chukkala-391768204/" target="_blank" class="underline hover:text-magenta">LinkedIn</a>
-        </span>
     </div>
 </footer>
     

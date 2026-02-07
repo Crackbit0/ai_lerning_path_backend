@@ -1,17 +1,62 @@
 """
 API endpoints for chat and milestone tracking functionality.
+Supports both session-based auth (web) and JWT token auth (mobile).
 """
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, g
 from flask_login import login_required, current_user
-from web_app.models import db, UserLearningPath, MilestoneProgress, LearningProgress
+from web_app.models import db, User, UserLearningPath, MilestoneProgress, LearningProgress
 from src.data.document_store import DocumentStore
 from datetime import datetime
+from functools import wraps
+import jwt
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 
+def get_current_user_from_token():
+    """Extract user from JWT token in Authorization header"""
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        try:
+            payload = jwt.decode(
+                token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            user_id = payload.get('user_id')
+            if user_id:
+                return User.query.get(user_id)
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            pass
+    return None
+
+
+def api_auth_required(f):
+    """
+    Decorator that supports both session-based and JWT token authentication.
+    For mobile apps using JWT tokens and web apps using session cookies.
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = None
+
+        # First try JWT token auth (for mobile)
+        user = get_current_user_from_token()
+
+        # If no token, fall back to session auth (for web)
+        if not user and current_user.is_authenticated:
+            user = current_user
+
+        if not user:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Store user in g for access in the route
+        g.current_user = user
+        return f(*args, **kwargs)
+
+    return decorated
+
+
 @api_bp.route('/save-path', methods=['POST'])
-@login_required
+@api_auth_required
 def save_path_json():
     """
     Save or update a learning path for the current user.
@@ -33,7 +78,7 @@ def save_path_json():
         # Upsert user path
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if user_path:
@@ -43,7 +88,7 @@ def save_path_json():
         else:
             user_path = UserLearningPath(
                 id=path_id,
-                user_id=current_user.id,
+                user_id=g.current_user.id,
                 path_data_json=path_data,
                 title=path_data.get('title', 'Untitled Path'),
                 topic=path_data.get('topic', 'General')
@@ -80,7 +125,7 @@ def save_path_json():
 
 
 @api_bp.route('/paths', methods=['GET'])
-@login_required
+@api_auth_required
 def get_all_paths():
     """
     Get all learning paths for the current user.
@@ -88,7 +133,7 @@ def get_all_paths():
     """
     try:
         user_paths = UserLearningPath.query.filter_by(
-            user_id=current_user.id).all()
+            user_id=g.current_user.id).all()
         paths = []
         for up in user_paths:
             path_data = up.path_data_json or {}
@@ -97,6 +142,18 @@ def get_all_paths():
             path_data['topic'] = up.topic
             path_data['created_at'] = up.created_at.isoformat(
             ) if up.created_at else None
+
+            # Include milestone completion progress
+            progress_entries = LearningProgress.query.filter_by(
+                user_learning_path_id=up.id
+            ).all()
+            completed_milestones = {}
+            for progress in progress_entries:
+                completed_milestones[progress.milestone_identifier] = (
+                    progress.status == 'completed'
+                )
+            path_data['completedMilestones'] = completed_milestones
+
             paths.append(path_data)
         return jsonify({'paths': paths}), 200
     except Exception as e:
@@ -105,7 +162,7 @@ def get_all_paths():
 
 
 @api_bp.route('/paths/<path_id>', methods=['GET'])
-@login_required
+@api_auth_required
 def get_path_by_id(path_id):
     """
     Get a specific learning path by ID.
@@ -114,7 +171,7 @@ def get_path_by_id(path_id):
     try:
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if not user_path:
@@ -127,6 +184,17 @@ def get_path_by_id(path_id):
         path_data['created_at'] = user_path.created_at.isoformat(
         ) if user_path.created_at else None
 
+        # Include milestone completion progress
+        progress_entries = LearningProgress.query.filter_by(
+            user_learning_path_id=path_id
+        ).all()
+        completed_milestones = {}
+        for progress in progress_entries:
+            completed_milestones[progress.milestone_identifier] = (
+                progress.status == 'completed'
+            )
+        path_data['completedMilestones'] = completed_milestones
+
         return jsonify(path_data), 200
     except Exception as e:
         current_app.logger.error(f"Error getting path: {str(e)}")
@@ -134,7 +202,7 @@ def get_path_by_id(path_id):
 
 
 @api_bp.route('/paths/<path_id>', methods=['DELETE'])
-@login_required
+@api_auth_required
 def delete_path(path_id):
     """
     Delete a learning path by ID.
@@ -143,7 +211,7 @@ def delete_path(path_id):
     try:
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if not user_path:
@@ -160,7 +228,7 @@ def delete_path(path_id):
 
 
 @api_bp.route('/paths/<path_id>/milestone', methods=['POST'])
-@login_required
+@api_auth_required
 def update_milestone_status(path_id):
     """
     Update milestone completion status for a learning path.
@@ -176,7 +244,7 @@ def update_milestone_status(path_id):
 
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if not user_path:
@@ -208,7 +276,7 @@ def update_milestone_status(path_id):
 
 
 @api_bp.route('/track-milestone', methods=['POST'])
-@login_required
+@api_auth_required
 def track_milestone():
     """
     Track milestone completion status.
@@ -226,7 +294,7 @@ def track_milestone():
         # Verify the path belongs to the user
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if not user_path:
@@ -234,14 +302,14 @@ def track_milestone():
 
         # Find or create milestone progress entry
         progress = MilestoneProgress.query.filter_by(
-            user_id=current_user.id,
+            user_id=g.current_user.id,
             learning_path_id=path_id,
             milestone_index=milestone_index
         ).first()
 
         if not progress:
             progress = MilestoneProgress(
-                user_id=current_user.id,
+                user_id=g.current_user.id,
                 learning_path_id=path_id,
                 milestone_index=milestone_index,
                 completed=completed
@@ -265,7 +333,7 @@ def track_milestone():
 
 
 @api_bp.route('/ask', methods=['POST'])
-@login_required
+@api_auth_required
 def ask_question():
     """
     Chat endpoint for asking questions about the learning path.
@@ -292,7 +360,7 @@ def ask_question():
         # Verify the path belongs to the user
         user_path = UserLearningPath.query.filter_by(
             id=path_id,
-            user_id=current_user.id
+            user_id=g.current_user.id
         ).first()
 
         if not user_path:

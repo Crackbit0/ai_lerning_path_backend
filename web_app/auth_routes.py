@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 # Assuming db and login_manager are initialized in __init__.py
 from web_app import db, login_manager
@@ -7,7 +7,9 @@ from web_app.auth_forms import LoginForm, RegistrationForm
 import json
 import random
 import logging
-from datetime import datetime
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -15,6 +17,61 @@ logger = logging.getLogger(__name__)
 # Define the blueprint
 # If we later move this to an 'auth' subdirectory, the template_folder might change.
 bp = Blueprint('auth', __name__, template_folder='templates/auth')
+
+
+# ============================================================
+# JWT TOKEN UTILITIES FOR MOBILE APP
+# ============================================================
+
+def generate_jwt_token(user_id, expires_in_days=30):
+    """Generate a JWT token for mobile authentication"""
+    payload = {
+        'user_id': user_id,
+        'exp': datetime.utcnow() + timedelta(days=expires_in_days),
+        'iat': datetime.utcnow()
+    }
+    return jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
+
+
+def verify_jwt_token(token):
+    """Verify a JWT token and return the user_id"""
+    try:
+        payload = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        return payload.get('user_id')
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+def token_required(f):
+    """Decorator to require JWT token authentication for API endpoints"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        # Check for token in Authorization header
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+
+        if not token:
+            return jsonify({'error': 'Authentication token is missing'}), 401
+
+        user_id = verify_jwt_token(token)
+        if not user_id:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+
+        # Get the user
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 401
+
+        # Pass the user to the route
+        return f(user, *args, **kwargs)
+
+    return decorated
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -26,7 +83,8 @@ def register():
 
     # Handle form submission
     if form.validate_on_submit():
-        logger.info(f"Registration form validated for email: {form.email.data}")
+        logger.info(
+            f"Registration form validated for email: {form.email.data}")
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
 
@@ -52,12 +110,13 @@ def register():
         logger.info(f"User logged in after registration: {user.email}")
         dashboard_url = url_for('main.dashboard')
         logger.info(f"Redirecting to dashboard: {dashboard_url}")
-        
+
         # Use render template with meta refresh as fallback
         return render_template('redirect.html', redirect_url=dashboard_url)
     else:
         if form.is_submitted():
-            logger.warning(f"Registration form validation failed: {form.errors}")
+            logger.warning(
+                f"Registration form validation failed: {form.errors}")
 
     return render_template('register.html', title='Join the Community', form=form)
 
@@ -76,12 +135,14 @@ def login():
         if user is None or not user.check_password(form.password.data):
             # Helpful error message
             if user is None:
-                logger.warning(f"Login failed: No user found for email {form.email.data}")
+                logger.warning(
+                    f"Login failed: No user found for email {form.email.data}")
                 flash(
                     'No account found with this email. Would you like to register?', 'warning')
                 return redirect(url_for('auth.register', email=form.email.data))
             else:
-                logger.warning(f"Login failed: Wrong password for {form.email.data}")
+                logger.warning(
+                    f"Login failed: Wrong password for {form.email.data}")
                 flash('Incorrect password. Please try again.', 'danger')
                 return redirect(url_for('auth.login'))
 
@@ -105,7 +166,7 @@ def login():
             next_page = url_for('main.dashboard')
 
         logger.info(f"Redirecting to: {next_page}")
-        
+
         # Use render template with meta refresh as fallback
         return render_template('redirect.html', redirect_url=next_page)
     else:
@@ -227,8 +288,8 @@ def register_json():
         db.session.add(user)
         db.session.commit()
 
-        # Auto-login
-        login_user(user)
+        # Generate JWT token for mobile authentication
+        token = generate_jwt_token(user.id)
 
         return jsonify({
             'success': True,
@@ -239,7 +300,7 @@ def register_json():
                 'email': user.email,
                 'display_name': user.display_name or user.username
             },
-            'token': 'session_based'  # Indicates session-based auth
+            'token': token
         }), 201
 
     except Exception as e:
@@ -264,12 +325,13 @@ def login_json():
         if user is None or not user.check_password(password):
             return jsonify({'error': 'Invalid email or password'}), 401
 
-        # Login successful
-        login_user(user, remember=True)
-
-        # Update last seen
+        # Update last seen and login count
         user.last_seen = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1
         db.session.commit()
+
+        # Generate JWT token for mobile authentication
+        token = generate_jwt_token(user.id)
 
         return jsonify({
             'success': True,
@@ -280,7 +342,7 @@ def login_json():
                 'email': user.email,
                 'display_name': user.display_name or user.username
             },
-            'token': 'session_based'
+            'token': token
         }), 200
 
     except Exception as e:

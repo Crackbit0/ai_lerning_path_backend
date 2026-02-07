@@ -13,6 +13,14 @@ else
     echo "SECRET_KEY is configured (length: ${#SECRET_KEY})"
 fi
 
+# Check database configuration
+if [ -z "$DATABASE_URL" ]; then
+    echo "WARNING: DATABASE_URL not set. Using local SQLite database (data will be lost on restart)."
+    echo "To enable persistent storage, set DATABASE_URL to a PostgreSQL connection string."
+else
+    echo "DATABASE_URL is configured (using PostgreSQL for persistent storage)"
+fi
+
 # Initialize database if it doesn't exist
 echo "Initializing database..."
 python -c "
